@@ -9,9 +9,10 @@
 using namespace std;
 
 // Nodo para guardar cuentas personales
-struct Usuario {
+struct Usuario{
     string nombreUsuario;
     string contrasena;
+    string categoria;
     Usuario* sgte;
 };
 
@@ -27,7 +28,7 @@ struct Fecha {
     int segundos;
 };
 
-// FunciÛn para obtener la fecha y hora actual
+// Funci√≥n para obtener la fecha y hora actual
 Fecha obtenerFechaHoraActual() {
     // Obteniendo la fecha y hora actual
     time_t tiempoActual = time(NULL);
@@ -35,7 +36,7 @@ Fecha obtenerFechaHoraActual() {
 
     // Creando una instancia de la estructura Fecha
     Fecha fechaActual;
-    fechaActual.anio = fechaHora->tm_year + 1900; // tm_year devuelve aÒos desde 1900
+    fechaActual.anio = fechaHora->tm_year + 1900; // tm_year devuelve a√±os desde 1900
     fechaActual.mes = fechaHora->tm_mon + 1;      // tm_mon devuelve meses desde 0
     fechaActual.dia = fechaHora->tm_mday;
     fechaActual.hora = fechaHora->tm_hour;
@@ -52,7 +53,7 @@ void gotoxy(int x, int y) {
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
 }
 
-// FunciÛn para obtener el ancho de la consola
+// Funci√≥n para obtener el ancho de la consola
 int getConsoleWidth() {
     CONSOLE_SCREEN_BUFFER_INFO csbi;
     int columns;
@@ -61,14 +62,14 @@ int getConsoleWidth() {
     return columns;
 }
 
-// FunciÛn para centrar texto en la consola
+// Funci√≥n para centrar texto en la consola
 void centerText(string text) {
     int consoleWidth = getConsoleWidth();
     int padding = (consoleWidth - text.length()) / 2;
     cout << string(padding, ' ') << text << endl;
 }
 
-// Estructura para ArtÌculo del Carrito de Compras
+// Estructura para Art√≠culo del Carrito de Compras
 struct ArticuloCarrito {
     string nombreArticulo;
     int idArticulo;
@@ -80,7 +81,7 @@ struct ArticuloCarrito {
 
 typedef ArticuloCarrito* carrito;
 
-// Estructura para ArtÌculo del Inventario
+// Estructura para Art√≠culo del Inventario
 struct ArticuloInventario {
     string nombreArticulo;
     int idArticulo;
@@ -131,6 +132,29 @@ void eliminarArticulo(inventario &cabeza, int idArticulo) {
     delete temp;
 }
 
+bool IDUnico(const string& nombreArchivo, int idArticulo){
+	ifstream archivo(nombreArchivo);
+	if(!archivo.is_open()){
+		cerr<<"Error al abrir el archivo de inventario."<<endl;
+		return false;
+	}
+	
+	int id;
+	string nombre;
+	int cantidad;
+	double precio;
+	
+	while(archivo>>id>>nombre>>cantidad>>precio){
+		if(id == idArticulo){
+			archivo.close();
+			return false;
+		}
+	}
+	
+	archivo.close();
+	return true;
+}
+
 void mostrarInventario(inventario cabeza) {
 	system("cls");
     inventario temp = cabeza;
@@ -140,7 +164,7 @@ void mostrarInventario(inventario cabeza) {
     centerText("=========================================");
     
     gotoxy(5, 5);
-    cout << "ID ArtÌculo\tNombre\t\t\tCantidad\tPrecio" << endl;
+    cout << "ID Art√≠culo\tNombre\t\t\tCantidad\tPrecio" << endl;
     cout <<"======================================================================================"<<endl;
     while (temp) {
         gotoxy(5, fila);
@@ -194,7 +218,7 @@ void editarArticulo(inventario &cabeza, int idArticulo) {
         temp = temp->siguiente;
     }
     if (!temp) {
-        centerText("ArtÌculo no encontrado.");
+        centerText("Art√≠culo no encontrado.");
         return;
     }
 
@@ -203,7 +227,7 @@ void editarArticulo(inventario &cabeza, int idArticulo) {
     centerText("Ingrese el nuevo precio: ");
     cin >> temp->precio;
 
-    centerText("ArtÌculo actualizado exitosamente.");
+    centerText("Art√≠culo actualizado exitosamente.");
 }
 
 
@@ -232,7 +256,7 @@ double recalcularMontoTotalCarrito(carrito cabezaCarrito) {
 void agregarAlCarrito(carrito &cabeza, inventario &inv, int idArticulo, int cantidad) {
 	
 	
-    // Buscar el artÌculo en el inventario
+    // Buscar el art√≠culo en el inventario
     inventario tempInv = inv;
     while (tempInv && tempInv->idArticulo != idArticulo) {
         tempInv = tempInv->siguiente;
@@ -259,7 +283,7 @@ void agregarAlCarrito(carrito &cabeza, inventario &inv, int idArticulo, int cant
     }
 }
 
-void mostrarCarrito(carrito cabeza) {
+void mostrarCarrito(carrito cabeza){
     carrito temp = cabeza;
     double totalCompra = 0.0;
     int fila = 8;
@@ -331,12 +355,12 @@ void realizarCompra(inventario &inv, carrito &cart, const string& nombreArchivo)
 	system("cls");
     mostrarCarrito(cart);
     char confirmacion;
-    cout << "øDesea confirmar la compra? (s/n): ";
+    cout << "¬øDesea confirmar la compra? (s/n): ";
     cin >> confirmacion;
     if (confirmacion == 's' || confirmacion == 'S') {
         actualizarInventario(inv, cart);
         guardarInventario(inv, nombreArchivo);
-        cout << "Compra realizada con Èxito. AquÌ est· su boleta:" << endl;
+        cout << "Compra realizada con √©xito. Aqu√≠ est√° su boleta:" << endl;
         mostrarCarrito(cart);
         // Vaciar el carrito
         while (cart) {
@@ -360,7 +384,7 @@ void menu1() {
     centerText("0. Salir");
     centerText("==================================");
 
-    // Solicitar la selecciÛn de opciÛn
+    // Solicitar la selecci√≥n de opci√≥n
     centerText("Seleccione una opcion: ");
 }
 
@@ -370,14 +394,14 @@ void menuAdm() {
     centerText("============================================");
     centerText("===      Opciones de Administrador       ===");
     centerText("============================================");
-    centerText("1. GestiÛn de Inventario");
-    centerText("2. GestiÛn de Clientes");
-    centerText("3. GestiÛn de Pedidos");
-    centerText("4. GestiÛn de Promociones y descuentos");
+    centerText("1. Gesti√≥n de Inventario");
+    centerText("2. Gesti√≥n de Clientes");
+    centerText("3. Gesti√≥n de Pedidos");
+    centerText("4. Gesti√≥n de Promociones y descuentos");
     centerText("0. Salir");
     centerText("==================================");
 
-    // Solicitar la selecciÛn de opciÛn
+    // Solicitar la selecci√≥n de opci√≥n
     centerText("Seleccione una opcion: ");
 }
 
@@ -390,15 +414,15 @@ void gestionarInventario() {
     do {
         system("cls");
         centerText("==================================");
-        centerText("===  GestiÛn de Inventario     ===");
+        centerText("===  Gesti√≥n de Inventario     ===");
         centerText("==================================");
-        centerText("1. Agregar ArtÌculo");
-        centerText("2. Eliminar ArtÌculo");
+        centerText("1. Agregar Art√≠culo");
+        centerText("2. Eliminar Art√≠culo");
         centerText("3. Mostrar Inventario");
-        centerText("4. Editar ArtÌculo");
+        centerText("4. Editar Art√≠culo");
         centerText("0. Salir");
         centerText("==================================");
-        centerText("Seleccione una opciÛn: ");
+        centerText("Seleccione una opci√≥n: ");
         gotoxy(72, 9);
         cin >> opcionInventario;
 
@@ -406,16 +430,32 @@ void gestionarInventario() {
             case 1: {
             	system("cls");
                 string nombreArticulo;
-                int idArticulo, cantidad;
-                double precio;
-                cout<<"Ingrese el nombre del artÌculo: ";
+                int idArticulo, cantidad=1;
+                double precio=1;
+                cout<<"Ingrese el nombre del art√≠culo: ";
                 cin >> nombreArticulo;
-                cout<<"\nIngrese el ID del artÌculo: ";
-                cin >> idArticulo;
-                cout<<"\nIngrese la cantidad: ";
-                cin >> cantidad;
-                cout<<"\nIngrese el precio: ";
-                cin >> precio;
+                do{
+	                cout<<"\nIngrese el ID del art√≠culo: ";
+	                cin >> idArticulo;
+					if(!IDUnico(nombreArchivo, idArticulo)){
+						cout<< "El ID del art√≠culo ya existe. Por favor, ingrese un ID diferente. "<<endl;
+					}           	
+				}while(!IDUnico(nombreArchivo, idArticulo));
+				do{
+	                cout<<"\nIngrese la cantidad: ";
+	                cin >> cantidad;
+					if(cantidad<=0){
+						cout<< "La cantidad no puede ser menor o igual a 0. Por favor, ingrese una cantidad v√°lida"<<endl;
+					}					
+				}while(cantidad<=0);
+				do{
+	                cout<<"\nIngrese el precio: ";
+	                cin >> precio;	
+					if(precio<=0){
+						cout<< "La cantidad no puede ser menor o igual a 0. Por favor, ingrese una cantidad v√°lida"<<endl;
+					}										
+				}while((precio<=0));
+
                 agregarArticulo(cabeza, nombreArticulo, idArticulo, cantidad, precio);
                 guardarInventario(cabeza, nombreArchivo); // Guardar inventario en el archivo
                 break;
@@ -424,7 +464,7 @@ void gestionarInventario() {
             	system("cls");
                 int idArticulo;
                 mostrarInventario(cabeza);
-                cout<<"Ingrese el ID del artÌculo a eliminar: ";
+                cout<<"Ingrese el ID del art√≠culo a eliminar: ";
                 cin >> idArticulo;
                 eliminarArticulo(cabeza, idArticulo);
                 guardarInventario(cabeza, nombreArchivo); // Guardar inventario en el archivo
@@ -438,7 +478,7 @@ void gestionarInventario() {
             case 4: {
             	mostrarInventario(cabeza);
                 int idArticulo;
-                cout<<"Ingrese el ID del artÌculo a editar: ";
+                cout<<"Ingrese el ID del art√≠culo a editar: ";
                 cin >> idArticulo;
                 editarArticulo(cabeza, idArticulo);
                 guardarInventario(cabeza, nombreArchivo); // Guardar inventario en el archivo
@@ -465,8 +505,8 @@ void menuClient() {
     centerText("0. Salir");
     centerText("==================================");
 
-    // Solicitar la selecciÛn de opciÛn
-    centerText("Seleccione una opciÛn: ");
+    // Solicitar la selecci√≥n de opci√≥n
+    centerText("Seleccione una opci√≥n: ");
 }
 
 usuario CrearUsuario() {
@@ -474,31 +514,57 @@ usuario CrearUsuario() {
     centerText("==================================");
     centerText("===      Tienda Virtual        ===");
     centerText("==================================");
-   
-usuario nuevo = new Usuario;
-
-centerText("Ingresar nuevo nombre de usuario:");
-cin >> nuevo->nombreUsuario;
-
-centerText("Ingresar nueva contraseÒa: ");
-char caracter;
-string contrasena = "";
-while ((caracter = _getch()) != '\r') { // Leer caracteres hasta que se presione Enter
-    if (caracter == '\b') { // Si es la tecla de retroceso
-        if (!contrasena.empty()) { // Verificar si la contraseÒa no est· vacÌa
-            cout << "\b \b"; // Borrar el ˙ltimo asterisco mostrado
-            contrasena.erase(contrasena.size() - 1); // Eliminar el ˙ltimo car·cter de la contraseÒa
-        }
-    } else {
-        cout << '*'; // Mostrar asterisco en lugar del car·cter ingresado
-        contrasena += caracter; // Agregar el car·cter a la contraseÒa
-    }
-}
-cout << endl;
-
-nuevo->contrasena = contrasena;
-nuevo->sgte = NULL;
-return nuevo;
+	   
+	usuario nuevo = new Usuario;
+	
+	cout<<"Ingresar nuevo nombre de usuario: ";
+	cin >> nuevo->nombreUsuario;
+	
+	cout<<"\nIngresar nueva contrase√±a: ";
+	char caracter;
+	string contrasena = "";
+	while ((caracter = _getch()) != '\r') { // Leer caracteres hasta que se presione Enter
+	    if (caracter == '\b') { // Si es la tecla de retroceso
+	        if (!contrasena.empty()) { // Verificar si la contrase√±a no est√° vac√≠a
+	            cout << "\b \b"; // Borrar el √∫ltimo asterisco mostrado
+	            contrasena.erase(contrasena.size() - 1); // Eliminar el √∫ltimo car√°cter de la contrase√±a
+	        }
+	    } else {
+	        cout << '*'; // Mostrar asterisco en lugar del car√°cter ingresado
+	        contrasena += caracter; // Agregar el car√°cter a la contrase√±a
+	    }
+	}
+	cout << endl;
+	nuevo->contrasena = contrasena;
+	
+	int opcion;
+	do{
+		centerText("Seleccione la categor√≠a de cliente (gold, black, platinum): ");
+		centerText("1. Gold");
+		centerText("2. Black");
+		centerText("3. Platinum");	
+    	cout<<"Ingrese una opcion: ";
+        cin >> opcion;
+        cout<<endl;
+        if(opcion!=1 && opcion!=2 && opcion!=3){
+        	centerText("La opcion ingresada no es valida, intente nuevamente\n");
+		}
+	}while(opcion!=1 && opcion!=2 && opcion!=3);
+	
+	switch(opcion){
+		case 1:
+			nuevo->categoria = "Gold";
+			break;
+		case 2:
+			nuevo->categoria = "Black";
+			break;
+		case 3:
+			nuevo->categoria = "Platinum";
+			break;
+	}
+	
+	nuevo->sgte = NULL;
+	return nuevo;
 }
 
 void menuCliente(inventario &inv, const string& nombreArchivo) {
@@ -579,178 +645,178 @@ void menuCliente(inventario &inv, const string& nombreArchivo) {
     } while (opcion != 0);
 }
 
-void InsertarUsuarioEnArchivo(const string& nombreUsuario, const string& contrasena) {
-ofstream archivo("usuarios.txt", ios::app); // Abrir el archivo en modo de aÒadir al final
-if (archivo.is_open()) {
-    archivo << nombreUsuario << " " << contrasena << endl; // Escribir los datos del usuario en una lÌnea del archivo
-    archivo.close(); // Cerrar el archivo
-} else {
-    cerr << "Error al abrir el archivo de usuarios." << endl;
-}
+bool AutenticarUsuarioDesdeArchivo(const string& nombreArchivo, const string& nombreUsuario, const string& contrasena) {
+	ifstream archivo(nombreArchivo);
+	if(!archivo.is_open()){
+		cerr<<"Error al abrir el archivo de usuarios"<<endl;
+		return false;
+	}
+	
+	string usuario, pass;
+	while (archivo >> usuario >> pass) { // Se lee los datos pares de usuario y contrase√±a del archivo
+	    if (usuario == nombreUsuario && pass == contrasena) {
+	        archivo.close(); // Cerramos el archivo
+	        return true; // Usuario autenticado
+	    }
+	}
+	archivo.close(); // Cerramos el archivo
+	return false; // Usuario no encontrado o contrase√±a incorrecta
 }
 
-bool AutenticarUsuarioDesdeArchivo(const string& nombreUsuario, const string& contrasena) {
-ifstream archivo("usuarios.txt");
-string usuario, pass;
-while (archivo >> usuario >> pass) { // Se lee los datos pares de usuario y contraseÒa del archivo
-    if (usuario == nombreUsuario && pass == contrasena) {
-        archivo.close(); // Cerramos el archivo
-        return true; // Usuario autenticado
-    }
-}
-archivo.close(); // Cerramos el archivo
-return false; // Usuario no encontrado o contraseÒa incorrecta
+void InsertarUsuarioEnArchivo(const string& nombreArchivo, const string& nombreUsuario, const string& contrasena, const string& categoria) {
+	ofstream archivo(nombreArchivo, ios::app); // Abrir el archivo en modo de a√±adir al final
+	if (archivo.is_open()) {
+	    archivo << nombreUsuario << " " << contrasena << " "<< categoria << endl; // Escribir los datos del usuario en una l√≠nea del archivo
+	    archivo.close(); // Cerrar el archivo
+	} else {
+	    cerr << "Error al abrir el archivo de usuarios." << endl;
+	}
 }
 
 int main() {
-Fecha fechaHoraActual = obtenerFechaHoraActual();
-
-inventario cabezaInventario = NULL;
-cargarInventario(cabezaInventario, "inventarioTienda.txt");
-carrito carritoCliente = NULL;
-
-system("cls"); // Limpiar la consola
-gotoxy(90,1);//aÒadimos
-cout<<fechaHoraActual.dia<<"/"<<fechaHoraActual.mes<<"/"<<fechaHoraActual.anio<<"    "<< fechaHoraActual.hora << ":"<<fechaHoraActual.minutos<< ":" << fechaHoraActual.segundos<<endl;
-int opcion,opcionAdm,opcionClient;
-
-do {
-    menu1();
-    gotoxy(72, 7);
-    cin >> opcion;
-
-    switch (opcion) {
-        case 1:{
-            system("cls"); // Limpiar la consola 
-            centerText("==================================");
-            centerText("===      Tienda Virtual        ===");
-            centerText("=================================="); 
-            string nombreUsuario, contrasena;
-            centerText("Ingrese nombre de usuario: "); 
-            gotoxy(72, 3);
-            cin >> nombreUsuario;
-            centerText("Ingrese contraseÒa: ");
-            char caracter;
-            gotoxy(69, 4);
-            string contrasenaIngresada = "";
-            while ((caracter = _getch()) != '\r') { // Leer caracteres hasta que se presione Enter
-                if (caracter == '\b') { // Si es la tecla de retroceso
-                    if (!contrasenaIngresada.empty()) { // Verificar si la contraseÒa no est· vacÌa
-                        cout << "\b \b"; // Borrar el ˙ltimo asterisco mostrado
-                        contrasenaIngresada.erase(contrasenaIngresada.size() - 1); // Eliminar el ˙ltimo car·cter de la contraseÒa ingresada
-                    }
-                } else {
-                    cout << '*'; // Mostrar asterisco en lugar del car·cter ingresado
-                    contrasenaIngresada += caracter; // Agregar el car·cter a la contraseÒa ingresada
-                }
-            }
-            cout << endl;
-
-            if (AutenticarUsuarioDesdeArchivo(nombreUsuario, contrasenaIngresada))
-                centerText("Usuario autenticado exitosamente." );
-            else{
-                centerText("Autenticacion fallida. Nombre de usuario o contraseÒa incorrectos.");
-                system("pause");
-                break;
-            }
-            
-            do{
-                menuAdm();
-                gotoxy(72, 9);
-                cin>>opcionAdm;
-                switch (opcionAdm){
-                    case 1:{
-                        gestionarInventario(); // Llamar a la funciÛn de gestiÛn de inventario
-                        break;
-                    }
-                    
-                    case 2:{
-                        break;
-                    }
-                    
-                    case 0:{
-                        break;
-                    }
-                    
-                    case 4:{
-                        break;
-                    }            
-                }
-            } while (opcionAdm != 0);                
-            break;
-        }
-            
-        case 2:{
-            system("cls"); // Limpiar la consola
-            do{
-                menuClient();
-                gotoxy(72, 9);
-                cin>>opcionClient;
-                switch(opcionClient){
-                    case 1:{
-                    system("cls"); // Limpiar la consola 
-		            centerText("==================================");
-		            centerText("===      Tienda Virtual        ===");
-		            centerText("=================================="); 
-		            string nombreUsuario, contrasena;
-		            centerText("Ingrese nombre de usuario: "); 
-		            gotoxy(72, 3);
-		            cin >> nombreUsuario;
-		            centerText("Ingrese contraseÒa: ");
-		            char caracter;
-		            gotoxy(69, 4);
-		            string contrasenaIngresada = "";
-		            while ((caracter = _getch()) != '\r') { // Leer caracteres hasta que se presione Enter
-		                if (caracter == '\b') { // Si es la tecla de retroceso
-		                    if (!contrasenaIngresada.empty()) { // Verificar si la contraseÒa no est· vacÌa
-		                        cout << "\b \b"; // Borrar el ˙ltimo asterisco mostrado
-		                        contrasenaIngresada.erase(contrasenaIngresada.size() - 1); // Eliminar el ˙ltimo car·cter de la contraseÒa ingresada
+	Fecha fechaHoraActual = obtenerFechaHoraActual();
+	
+	inventario cabezaInventario = NULL;
+	cargarInventario(cabezaInventario, "inventarioTienda.txt");
+	carrito carritoCliente = NULL;
+	
+	system("cls"); // Limpiar la consola
+	gotoxy(90,1);//a√±adimos
+	cout<<fechaHoraActual.dia<<"/"<<fechaHoraActual.mes<<"/"<<fechaHoraActual.anio<<"    "<< fechaHoraActual.hora << ":"<<fechaHoraActual.minutos<< ":" << fechaHoraActual.segundos<<endl;
+	int opcion,opcionAdm,opcionClient;
+	
+	do {
+	    menu1();
+	    gotoxy(72, 7);
+	    cin >> opcion;
+	
+	    switch (opcion) {
+	        case 1:{
+	            system("cls"); // Limpiar la consola 
+	            centerText("==================================");
+	            centerText("===      Tienda Virtual        ===");
+	            centerText("=================================="); 
+	            string nombreUsuario, contrasena;
+	            centerText("Ingrese nombre de usuario: "); 
+	            gotoxy(72, 3);
+	            cin >> nombreUsuario;
+	            centerText("Ingrese contrase√±a: ");
+	            char caracter;
+	            gotoxy(69, 4);
+	            string contrasenaIngresada = "";
+	            while ((caracter = _getch()) != '\r') { // Leer caracteres hasta que se presione Enter
+	                if (caracter == '\b') { // Si es la tecla de retroceso
+	                    if (!contrasenaIngresada.empty()) { // Verificar si la contrase√±a no est√° vac√≠a
+	                        cout << "\b \b"; // Borrar el √∫ltimo asterisco mostrado
+	                        contrasenaIngresada.erase(contrasenaIngresada.size() - 1); // Eliminar el √∫ltimo car√°cter de la contrase√±a ingresada
+	                    }
+	                } else {
+	                    cout << '*'; // Mostrar asterisco en lugar del car√°cter ingresado
+	                    contrasenaIngresada += caracter; // Agregar el car√°cter a la contrase√±a ingresada
+	                }
+	            }
+	            cout << endl;
+	            
+	            if (AutenticarUsuarioDesdeArchivo("admins.txt", nombreUsuario, contrasenaIngresada)){
+	                centerText("Usuario autenticado exitosamente." );
+		            do{
+		                menuAdm();
+		                gotoxy(72, 9);
+		                cin>>opcionAdm;
+		                switch (opcionAdm){
+		                    case 1:{
+		                        gestionarInventario(); // Llamar a la funci√≥n de gesti√≥n de inventario
+		                        break;
 		                    }
-		                } else {
-		                    cout << '*'; // Mostrar asterisco en lugar del car·cter ingresado
-		                    contrasenaIngresada += caracter; // Agregar el car·cter a la contraseÒa ingresada
+		                    
+		                    case 2:{
+		                        break;
+		                    }
+		                    
+		                    case 0:{
+		                        break;
+		                    }
+		                    
+		                    case 4:{
+		                        break;
+		                    }            
 		                }
-		            }
-		            cout << endl;
-		
-		            if (AutenticarUsuarioDesdeArchivo(nombreUsuario, contrasenaIngresada))
-		                centerText("Usuario autenticado exitosamente." );
-		            else{
-		                centerText("Autenticacion fallida. Nombre de usuario o contraseÒa incorrectos.");
-		                system("pause");
-		                break;
-		            }
-					
-					menuCliente(cabezaInventario, "inventario.txt");	
-                        break;
-                    }
-                        
-                    case 2:{
-                        usuario nuevoUsuario = CrearUsuario();
-                        InsertarUsuarioEnArchivo(nuevoUsuario->nombreUsuario, nuevoUsuario->contrasena);
-                        break;
-                    }
-                        
-                    case 3:{
-                    	menuCliente(cabezaInventario, "inventario.txt");
-                        break;
-                    }                   
-                }
-            }while (opcionClient != 0);
-            break;
-        }
-            
-    
-        case 0:{
-            break;
-        }
-            
-        default:
-            centerText("OpciÛn no v·lida\n");
-            break;
-    }
-} while (opcion != 0);
+		            }while (opcionAdm != 0);     
+				}        
+	            else{
+	                centerText("Autenticacion fallida. Nombre de usuario o contrase√±a incorrectos.");
+	                system("pause");
+	            }          
+	            break;
+	        }
+	            
+	        case 2:{
+	            system("cls"); // Limpiar la consola
+	            do{
+	                menuClient();
+	                gotoxy(72, 9);
+	                cin>>opcionClient;
+	                switch(opcionClient){
+	                    case 1:{
+		                    system("cls"); // Limpiar la consola 
+				            centerText("==================================");
+				            centerText("===      Tienda Virtual        ===");
+				            centerText("=================================="); 
+				            string nombreUsuario, contrasena;
+				            centerText("Ingrese nombre de usuario: "); 
+				            gotoxy(72, 3);
+				            cin >> nombreUsuario;
+				            centerText("Ingrese contrase√±a: ");
+				            char caracter;
+				            gotoxy(69, 4);
+				            string contrasenaIngresada = "";
+				            while ((caracter = _getch()) != '\r') { // Leer caracteres hasta que se presione Enter
+				                if (caracter == '\b') { // Si es la tecla de retroceso
+				                    if (!contrasenaIngresada.empty()) { // Verificar si la contrase√±a no est√° vac√≠a
+				                        cout << "\b \b"; // Borrar el √∫ltimo asterisco mostrado
+				                        contrasenaIngresada.erase(contrasenaIngresada.size() - 1); // Eliminar el √∫ltimo car√°cter de la contrase√±a ingresada
+				                    }
+				                } else {
+				                    cout << '*'; // Mostrar asterisco en lugar del car√°cter ingresado
+				                    contrasenaIngresada += caracter; // Agregar el car√°cter a la contrase√±a ingresada
+				                }
+				            }
+				            cout << endl;
+				
+				            if (AutenticarUsuarioDesdeArchivo("usuarios.txt", nombreUsuario, contrasenaIngresada)){
+				                centerText("Usuario autenticado exitosamente." );
+								menuCliente(cabezaInventario, "inventario.txt");		            	
+							}	    
+				            else{
+				                centerText("Autenticacion fallida. Nombre de usuario o contrase√±a incorrectos.");
+				                system("pause");
+				            }
+							break;
+	                    }
+	                        
+	                    case 2:{
+	                        usuario nuevoUsuario = CrearUsuario();
+	                        InsertarUsuarioEnArchivo("usuarios.txt",nuevoUsuario->nombreUsuario, nuevoUsuario->contrasena, nuevoUsuario->categoria);
+	                        break;
+	                    }
+	                        
+	                    case 3:{
+	                    	menuCliente(cabezaInventario, "inventario.txt");
+	                        break;
+	                    }                   
+	                }
+	            }while (opcionClient != 0);
+	            break;
+	        }
 
-return 0;
+	        case 0:{
+	            break;
+	        }
+	            
+	        default:
+	            centerText("Opci√≥n no v√°lida\n");
+	            break;
+	    }
+	} while (opcion != 0);
+	return 0;
 }
-
